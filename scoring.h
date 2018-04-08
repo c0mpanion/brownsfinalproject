@@ -1,6 +1,6 @@
-#ifndef FINALPROJECTCODE_LIBRARY_H
-#define FINALPROJECTCODE_LIBRARY_H
+#ifndef SEVERITYSCORE
+#define SEVERITYSCORE "scoring.h"
 
-void hello(void);
+int severityscore (int kills, int injuries);
 
 #endif
