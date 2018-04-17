@@ -4,6 +4,7 @@ import pycuda.driver as cuda
 import pycuda.autoinit
 from pycuda.compiler import SourceModule
 import numpy as np
+from gmplot import gmplot
 
 """TODO: Write the severity algorithm given by Dr. C and use
 allocate function to send data there"""
@@ -18,7 +19,7 @@ def scoring(killed, injured, score):
 blocks within the gpu for it, used by scoring function"""
 def allocate_send_data_gpu(np_array):
 
-"""Adds a severity score column to our csv data frame"""
+    """Adds a severity score column to our csv data frame"""
 def add_column(data_df):
     null_data = []
     data_df['Severity Score'] = null_data
@@ -59,7 +60,5 @@ def main():
 
     # score the cuda arrays using scoring function
     data_df = scoring(cuda_killed, cuda_injured, cuda_score)
-
-
 
 main()
