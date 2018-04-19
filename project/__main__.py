@@ -11,10 +11,16 @@ import os
 def scoring(killed, injured, score):
     # TODO: Write the severity algorithm given by Dr. C and use allocate function to send data there
     """Send the lists to the gpu, score each row, return lists back to CPU"""
-    # mod = SourceModule("""
-    # __global__ void scoring(
-    #
-    # """)
+    killsize = np.ndarray.size(killed)
+    injuredsize = np.ndarray.size(injured)
+    n = killsize + injuredsize
+    numThreads = 20
+    numCores = (n / 20) + 1
+    mod = SourceModule("""
+     __global__ void scoring(float* a, float* b, long n)
+    long element = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    """)
 
     return (killed * 0.5) * (injured * 0.15)
 
