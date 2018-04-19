@@ -3,3 +3,7 @@
 
 # Exclude IDE files
 .idea/
+
+# Exclude Python bytecode and cache files
+*.pyc 
+__pycache__/

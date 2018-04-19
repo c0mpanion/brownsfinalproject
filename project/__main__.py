@@ -3,10 +3,10 @@ import pandas as pd
 import time
 import os
 import sys
-# import pycuda.driver as cuda
-# import pycuda.autoinit
-# from pycuda.compiler import SourceModule
-# from gmplot import gmplot
+
+from LinearStrategy import LinearStrategy
+from ParallelStrategy import ParallelStrategy
+from CudaStrategy import CudaStrategy
 
 
 def scoring(killed, injured, score):
@@ -17,11 +17,11 @@ def scoring(killed, injured, score):
     n = killsize + injuredsize
     numThreads = 20
     numCores = (n / 20) + 1
-    mod = SourceModule("""
-     __global__ void scoring(float* a, float* b, long n)
-    long element = blockIdx.x * blockDim.x + threadIdx.x;
-    
-    """)
+    # mod = SourceModule("""
+    #  __global__ void scoring(float* a, float* b, long n)
+    # long element = blockIdx.x * blockDim.x + threadIdx.x;
+    #
+    # """)
 
     return 0
 
@@ -37,8 +37,7 @@ def add_column(data_frame):
 
 
 def import_csv():
-    """Imports the NYPD collisions csv and returns a data frame
-    for manipulation"""
+    """Imports the NYPD collisions csv and returns a data frame for manipulation"""
     data_location = (os.path.join(os.path.dirname(__file__), 'data/NYPD_Motor_Vehicle_Collisions.csv'))
     data_frame = pd.read_csv(data_location, index_col='DATE')
 
@@ -59,18 +58,10 @@ def main():
     # tell us how long csv file took to run
     print("Reading csv file took ", time.time() - start_time, "to run")
 
-    # print the columns of our csv file
-    print(df_collisions.columns)
-    # print(df_collisions.head())
-
-    # Group data frame by zip code
-    df_zipcodes = df_collisions.groupby('ZIP CODE')
-
-    print(len(df_zipcodes.groups))
-
-    for index, row in df_zipcodes.iterrows():
-        print(row)
-        # row['c1'], row['c2']
+    # Run strategies
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions)
+    cs = CudaStrategy(df_collisions)
 
     # ['NUMBER OF PEDESTRIANS INJURED'].mean()
     # print(mean)
@@ -80,18 +71,14 @@ def main():
     # data_frame = add_column(data_frame)
 
     # pulling needed columns from data frame for severity score
-    df_killed = df_collisions['NUMBER OF PERSONS KILLED'].tolist()
-    df_injured = df_collisions['NUMBER OF PEDESTRIANS INJURED'].tolist()
+    # df_killed = df_collisions['NUMBER OF PERSONS KILLED'].tolist()
+    # df_injured = df_collisions['NUMBER OF PEDESTRIANS INJURED'].tolist()
     # df_score = data_frame['Severity Score'].tolist()
 
     # converts the column lists to cuda arrays
-    array_killed = np.array(df_killed, dtype=np.int32)
-    array_injured = np.array(df_injured, dtype=np.int32)
+    # array_killed = np.array(df_killed, dtype=np.int32)
+    # array_injured = np.array(df_injured, dtype=np.int32)
     # array_score = np.array(df_score, dtype=np.int32)
-
-    # plt.plot(array_killed)
-    # plt.plot(array_injured)
-    # plt.show()
 
     # score the cuda arrays using scoring function
     # data_frame = scoring(cuda_killed, cuda_injured, cuda_score)
