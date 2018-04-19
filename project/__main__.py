@@ -22,7 +22,7 @@ def scoring(killed, injured, score):
     
     """)
 
-    return (killed * 0.5) * (injured * 0.15)
+    return 0
 
 
 def allocate_send_data_gpu(np_array):
