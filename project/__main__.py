@@ -55,3 +55,5 @@ def main():
     # score the cuda arrays using scoring function
     # data_frame = scoring(cuda_killed, cuda_injured, cuda_score)
 
+
+main()
