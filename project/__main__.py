@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import pandas as pd
 import time
@@ -7,6 +9,7 @@ import sys
 from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
 from CudaStrategy import CudaStrategy
+
 
 
 def import_csv():
