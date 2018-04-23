@@ -4,9 +4,9 @@ import time
 import os
 import sys
 
-from project.LinearStrategy import LinearStrategy
-from project.ParallelStrategy import ParallelStrategy
-from project.CudaStrategy import CudaStrategy
+from LinearStrategy import LinearStrategy
+from ParallelStrategy import ParallelStrategy
+from CudaStrategy import CudaStrategy
 
 
 def import_csv():
