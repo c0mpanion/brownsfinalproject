@@ -13,7 +13,7 @@ class CudaStrategy:
     def __init__(self, data_frame):
         print("Starting Cuda strategy...")
         self.df = data_frame
-        self.add_column(self)
+        self.add_column(self.df)
 
         # Convert pandas data frame columns to numpy lists
         persons_killed = self.df['NUMBER OF PERSONS KILLED'].values.tolist()
@@ -26,8 +26,8 @@ class CudaStrategy:
         severity_score.dtype("int32")
 
     """ Adds severity score column filled with NULLS to the data frame """
-    def add_column(self):
-        self.df['SEVERITY SCORE'] = np.nan
+    def add_column(self, df):
+        df['SEVERITY SCORE'] = np.nan
 
     """ Prints header columns of the data frame """
     def print_columns(self):
