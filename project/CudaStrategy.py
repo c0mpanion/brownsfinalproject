@@ -16,9 +16,9 @@ class CudaStrategy:
         self.add_column(self.df)
 
         # Convert pandas data frame columns to numpy lists
-        persons_killed = self.df['NUMBER OF PERSONS KILLED'].values.tolist()
-        persons_injured = self.df['NUMBER OF PERSONS INJURED'].values.tolist()
-        severity_score = self.df['SEVERITY SCORE'].values.tolist()
+        persons_killed = self.df[['NUMBER OF PERSONS KILLED']].values
+        persons_injured = self.df[['NUMBER OF PERSONS INJURED']].values
+        severity_score = self.df[['SEVERITY SCORE']].values
 
         # Convert np types as int 32 for compatibility with GPU
         persons_killed.dtype("int32")
