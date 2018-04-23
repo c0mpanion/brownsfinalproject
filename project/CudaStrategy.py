@@ -25,7 +25,7 @@ class CudaStrategy:
         persons_injured.dtype("int32")
         severity_score.dtype("int32")
 
-    """ Adds severity score column which is filled with NULLS to the data frame """
+    """ Adds severity score column filled with NULLS to the data frame """
     def add_column(self, df):
         df['SEVERITY SCORE'] = np.nan
 
