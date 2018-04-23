@@ -21,9 +21,9 @@ class CudaStrategy:
         severity_score = self.df[['SEVERITY SCORE']].values
 
         # Convert np types as int 32 for compatibility with GPU
-        persons_killed.dtype("int32")
-        persons_injured.dtype("int32")
-        severity_score.dtype("int32")
+        # persons_killed.dtype("int32")
+        # persons_injured.dtype("int32")
+        # severity_score.dtype("int32")
 
     """ Adds severity score column filled with NULLS to the data frame """
     def add_column(self, df):
