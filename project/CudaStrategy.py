@@ -57,4 +57,5 @@ class CudaStrategy:
 
         # Implements the scoring function on our GPU arrays, retrieves our new score as a np array
         scoring_function(killed_gpu, injured_gpu, scored_gpu)
-        np.new_score = scored_gpu.get()
+        new_score = scored_gpu.get()
+        print(new_score)
