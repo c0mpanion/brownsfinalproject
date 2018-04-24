@@ -25,9 +25,9 @@ class CudaStrategy:
         persons_injured[1] = 0
         severity_score[1] = 0
 
-        print("Persons killed np array: " + persons_killed)
-        print("Persons injured np array: " + persons_injured)
-        print("Severity score np array: " + severity_score)
+        print(persons_killed)
+        print(persons_injured)
+        print(severity_score)
 
         self.scoring(persons_killed, persons_injured, severity_score)
 
