@@ -63,6 +63,6 @@ class CudaStrategy:
 
         scoring_func = scorefunc.get_function("scoring")
 
-        scoring_func(cuda.Out(score), cuda.In(killed), cuda.In(injured), block=(400, 1, 1))
+        scoring_func(cuda.Out(score), cuda.In(killed), cuda.In(injured), block=(400, 2, 1))
 
         print(score)
