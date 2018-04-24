@@ -49,7 +49,7 @@ class CudaStrategy:
         """Send the lists to the gpu, score each row, return lists back to CPU"""
         killed_gpu = gpuarray.to_gpu(killed)
         injured_gpu = gpuarray.to_gpu(injured)
-        scored_gpu = gpuarray.empty_like(killed_gpu)
+        scored_gpu = gpuarray.to_gpu(score)
 
         """Uses elementwise kernel within PyCuda: first line takes our arrays as arguments,
         the second line takes the operation on each element with i being the index, and the
