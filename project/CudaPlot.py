@@ -2,7 +2,7 @@ import gmplot
 import pycuda.gpuarray as gpuarray
 import pycuda.driver as cuda
 import pycuda.autoinit
-import pycuda.compiler from SourceModule
+from pycuda.compiler import SourceModule
 import numpy
 
 class CudaPlot(gmplot.GoogleMapPlotter):
@@ -28,12 +28,25 @@ class CudaPlot(gmplot.GoogleMapPlotter):
          settings['dissipating'] = dissipating
          settings = self._process_heatmap_kwargs(settings)
 
-         heatmap_points = []
-         for lat, lng in zip(lats, lngs):
-            heatmap_points.append((lat, lng))
+         #heatmap_points = []
+         #for lat, lng in zip(lats, lngs):
+         #   heatmap_points.append((lat, lng))
+
+	 heatmapGPU = SourceModule (
+	 """
+	    __global__ void heatmapGPU(float *lats, float *lngs, float *heatmap_points)
+	    {
+		int idx = 0;
+		int idy = 0;
+		heatmap_points[0][idy] = lngs[idy];
+		heatmpa_points[idx][1] = lats[idx];	
+	    }	
+	 """		
+	 )
+
          self.heatmap_points.append((heatmap_points, settings))
 
-     def _process_heatmap_kwargs(self, settings_dict):
+      def _process_heatmap_kwargs(self, settings_dict):
          settings_string = ''
          settings_string += "heatmap.set('threshold', %d);\n" % settings_dict['threshold']
          settings_string += "heatmap.set('radius', %d);\n" % settings_dict['radius']
@@ -55,3 +68,4 @@ class CudaPlot(gmplot.GoogleMapPlotter):
 
          return settings_string     	
 
+#if __name__ == '__main__':
