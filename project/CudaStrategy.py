@@ -21,9 +21,9 @@ class CudaStrategy:
         persons_injured = self.df[['NUMBER OF PERSONS INJURED']].as_matrix
         severity_score = self.df[['SEVERITY SCORE']].as_matrix
 
-        persons_killed.astype(int)
-        persons_injured.astype(int)
-        severity_score.astype(int)
+        # persons_killed.astype(int)
+        # persons_injured.astype(int)
+        # severity_score.astype(int)
 
         print(persons_killed)
         print(persons_injured)
@@ -32,9 +32,9 @@ class CudaStrategy:
         self.scoring(persons_killed, persons_injured, severity_score)
 
         # Convert np types as int 32 for compatibility with GPU
-        # persons_killed.dtype("int32")
-        # persons_injured.dtype("int32")
-        # severity_score.dtype("int32")
+        persons_killed.dtype("int32")
+        persons_injured.dtype("int32")
+        severity_score.dtype("int32")
 
     """ Adds severity score column filled with zeros to the data frame """
     def add_column(self, df):
