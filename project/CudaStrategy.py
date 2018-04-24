@@ -17,9 +17,9 @@ class CudaStrategy:
         self.add_column(self.df)
 
         # Convert pandas data frame columns to numpy lists
-        persons_killed = self.df[['NUMBER OF PERSONS KILLED']].tolist()
-        persons_injured = self.df[['NUMBER OF PERSONS INJURED']].tolist()
-        severity_score = self.df[['SEVERITY SCORE']].tolist()
+        persons_killed = self.df[['NUMBER OF PERSONS KILLED']].as_matrix
+        persons_injured = self.df[['NUMBER OF PERSONS INJURED']].as_matrix
+        severity_score = self.df[['SEVERITY SCORE']].as_matrix
 
         persons_killed[1] = 0
         persons_injured[1] = 0
