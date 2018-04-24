@@ -54,7 +54,6 @@ class CudaStrategy:
             const int i = blockIdx.x * blockDim.x + threadIdx.x;
             score[i] = ((((killed[i] * 2) + (injured[i])) / 20) * 5) ;
         }
-        
         """)
 
         scoring_func = scorefunc.get_function("scoring")
