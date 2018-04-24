@@ -53,10 +53,6 @@ class CudaStrategy:
     def scoring(self, killed, injured, score):
         """Send the lists to the gpu, score each row, return lists back to CPU"""
 
-        killed.astype(int)
-        injured.astype(int)
-        score.astype(int)
-
         scorefunc = SourceModule("""
         __global__ void scoring(int *killed, int *injured, int *score)
         {
