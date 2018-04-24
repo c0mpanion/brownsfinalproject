@@ -21,9 +21,9 @@ class CudaStrategy:
         persons_injured = self.df[['NUMBER OF PERSONS INJURED']]
         severity_score = self.df[['SEVERITY SCORE']]
 
-        persons_killed = np.delete(persons_killed, 1, axis=0)
-        persons_injured = np.delete(persons_injured, 1, axis=0)
-        severity_score = np.delete(persons_injured, 1, axis=0)
+        persons_killed[1] = 0
+        persons_injured[1] = 0
+        severity_score[1] = 0
 
         print("Persons killed np array: " + persons_killed)
         print("Persons injured np array: " + persons_injured)
