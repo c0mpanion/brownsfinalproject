@@ -34,7 +34,7 @@ def main():
     df_collisions = import_csv()
 
     # tell us how long csv file took to run
-    print("Reading csv file took ", time.time() - start_time, "to run")
+    print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
     ls = LinearStrategy(df_collisions)
