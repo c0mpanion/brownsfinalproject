@@ -24,7 +24,7 @@ class CudaStrategy:
         print(persons_injured)
 
         self.scoring(persons_killed, persons_injured, severity_score)
-        
+
         # Convert np types as int 32 for compatibility with GPU
         # persons_killed.dtype("int32")
         # persons_injured.dtype("int32")
@@ -61,6 +61,6 @@ class CudaStrategy:
         )
 
         # Implements the scoring function on our GPU arrays, retrieves our new score as a np array
-        scoring_function(killed_gpu, injured_gpu, scored_gpu)
+        ElementwiseKernel(killed_gpu, injured_gpu, scored_gpu)
         new_score = scored_gpu.get()
         print(new_score)
