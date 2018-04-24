@@ -20,8 +20,8 @@ class CudaStrategy:
         persons_injured = self.df[['NUMBER OF PERSONS INJURED']].values
         severity_score = self.df[['SEVERITY SCORE']].values
 
-        print(persons_killed)
-        print(persons_injured)
+       # print(persons_killed)
+       # print(persons_injured)
 
         self.scoring(persons_killed, persons_injured, severity_score)
 
