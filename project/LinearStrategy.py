@@ -34,7 +34,6 @@ class LinearStrategy:
             # Only append positive scores
             scores.append(score)
 
-        print("Non-zero #" + str(z))
         # Return list of scores
         return np.array(scores)
 
