@@ -17,12 +17,13 @@ class CudaStrategy:
         self.add_column(self.df)
 
         # Convert pandas data frame columns to numpy lists
-        persons_killed = self.df.to_numeric([['NUMBER OF PERSONS KILLED']])
-        persons_injured = self.df.to_numeric([['NUMBER OF PERSONS INJURED']])
-        severity_score = self.df.to_numeric([['SEVERITY SCORE']])
+        persons_killed = self.df[['NUMBER OF PERSONS KILLED']].values
+        persons_injured = self.df[['NUMBER OF PERSONS INJURED']].values
+        severity_score = self.df[['SEVERITY SCORE']].values
 
-       # print(persons_killed)
-       # print(persons_injured)
+        print("Persons killed np array: " + persons_killed)
+        print("Persons injured np array: " + persons_injured)
+        print("Severity score np array: " + severity_score)
 
         self.scoring(persons_killed, persons_injured, severity_score)
 
