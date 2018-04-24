@@ -13,7 +13,8 @@ from CudaStrategy import CudaStrategy
 def import_csv():
     """Imports the NYPD collisions csv and returns a data frame for manipulation"""
     data_location = (os.path.join(os.path.dirname(__file__), 'data/NYPD_Motor_Vehicle_Collisions.csv'))
-    data_frame = pd.read_csv(data_location, index_col='DATE')
+    # data_frame = pd.read_csv(data_location, index_col='DATE')
+    data_frame = pd.read_csv(data_location)
     return data_frame
 
 
