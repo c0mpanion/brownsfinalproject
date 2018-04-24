@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pycuda.driver as cuda
 import pycuda.autoinit
+from pycuda.compiler import SourceModule
 import pycuda.gpuarray as gpuarray
 # from gmplot import gmplot
 from pycuda.elementwise import ElementwiseKernel
@@ -60,6 +61,6 @@ class CudaStrategy:
 
         # Implements the scoring function on our GPU arrays, retrieves our new score as a np array
 
-        ElementwiseKernel.scoring_function(killed_gpu, injured_gpu, scored_gpu)
+        ElementwiseKernel(killed_gpu, injured_gpu, scored_gpu)
         new_score = scored_gpu.get()
         print(new_score)
