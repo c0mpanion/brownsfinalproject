@@ -9,12 +9,16 @@ from ParallelStrategy import ParallelStrategy
 from CudaStrategy import CudaStrategy
 
 
-
 def import_csv():
     """Imports the NYPD collisions csv and returns a data frame for manipulation"""
     data_location = (os.path.join(os.path.dirname(__file__), 'data/NYPD_Motor_Vehicle_Collisions.csv'))
     # data_frame = pd.read_csv(data_location, index_col='DATE')
-    data_frame = pd.read_csv(data_location)
+    data_frame = pd.read_csv(data_location, dtype={
+        "NUMBER OF PERSONS INJURED": int,
+        "NUMBER OF PERSONS KILLED": int,
+        "BOROUGH": str,
+        "ZIP CODE": str,
+    })
     return data_frame
 
 
@@ -33,8 +37,8 @@ def main():
     print("Reading csv file took ", time.time() - start_time, "to run")
 
     # Run strategies
-    #ls = LinearStrategy(df_collisions)
-    #ps = ParallelStrategy(df_collisions)
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
 
     # ['NUMBER OF PEDESTRIANS INJURED'].mean()
