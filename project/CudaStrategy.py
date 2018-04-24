@@ -53,12 +53,10 @@ class CudaStrategy:
         """Uses elementwise kernel within PyCuda: first line takes our arrays as arguments,
         the second line takes the operation on each element with i being the index, and the
         third line names the function"""
-        scoring_function = \
-            ElementwiseKernel(
+        scoring_function = ElementwiseKernel(
                 "int *killed, int *injured, int *score",
                 "score[i] = (((killed[i] * 2) + (injured[i])) / 2 * 20) * 5",
-                "scoring_function"
-        )
+                "scoring_function")
 
         # Implements the scoring function on our GPU arrays, retrieves our new score as a np array
         scoring_function(killed_gpu, injured_gpu, scored_gpu)
