@@ -5,7 +5,7 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 import numpy
 
-class CudaPlot(gmplot.GoogleMapPlotter):
+class CudaPlotter(gmplot.GoogleMapPlotter):
      
       def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=1, dissipating=True):
          """
@@ -27,25 +27,55 @@ class CudaPlot(gmplot.GoogleMapPlotter):
          settings['maxIntensity'] = maxIntensity
          settings['dissipating'] = dissipating
          settings = self._process_heatmap_kwargs(settings)
+	 
 
+	 #Sequential CPU Implementation  
          #heatmap_points = []
          #for lat, lng in zip(lats, lngs):
          #   heatmap_points.append((lat, lng))
 
+	  
+	 #GPU Implementation
+	 #Change lists to Numpy Arrays 
+         heatmap_points = heatmap_points.astype(numpy.float32)
+	 tempLats = lats.astype(numpy.float32)
+	 tempLngs = lngs.astype(numpy.float32)
+	
+	 #Allocate memory in GPU  
+	 lats_gpu = cuda.mem_alloc(tempLats.nbytes)
+	 lngs_gpu = cuda.mem_alloc(tempLngs.nbytes)
+	 points_gpu = cuda.mem_alloc(heatmap_points.nbytes)
+
+	 #Transfer data from CPU(Host) to GPU(Device) 
+	 cuda.memcpy_htod(lats_gpu, tempLats)
+	 cuda.memcpy_htod(lngs_gpu, tempLngs)
+	 cuda.memcpy_htod(points_gpu, heatmap_points)
+
+	 #C Implementation of commented out code above
 	 heatmapGPU = SourceModule (
 	 """
 	    __global__ void heatmapGPU(float *lats, float *lngs, float *heatmap_points)
 	    {
 		int idx = 0;
 		int idy = 0;
-		heatmap_points[0][idy] = lngs[idy];
-		heatmpa_points[idx][1] = lats[idx];	
+		heatmap_points[idx][0] = lats[idx]; #Column 0 is for lats values 
+		heatmpa_points[idy][1] = lngs[idy]; #Column 1 is for lngs values
+
 	    }	
 	 """		
 	 )
+	
+ 	 #Execute kernel function using GPU versions of the "Lists" as args
          func = mod.get_function("heatmapGPU")
-	 func(lats_args, lngs_args, heatmap_points, block = (400,1,1))
-	 heatmap_points = numpty.empty_like(heatmaps_points)
+	 func(lats_gpu, lngs_gpu, points_gpu, block = (400,1,1))
+
+	 #Bring back data to the CPU from temp var and into constructor variable heatmap_points
+	 tempPoints = numpty.empty_like(heatmaps_points)
+	 cuda.memcpy_dtoh(tempPoints, points_gpu)
+
+	 #Convert back to list for following line
+	 heatmaps_points = tempPoints.tolist()
+
          self.heatmap_points.append((heatmap_points, settings))
 
       def _process_heatmap_kwargs(self, settings_dict):
@@ -70,4 +100,14 @@ class CudaPlot(gmplot.GoogleMapPlotter):
 
          return settings_string     	
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
+
+     #gmap = CudaPlot.gmplot.GoogleMapPlotter.from_geocode("San Francisco")
+     # Place map
+     gmap = CudaPlotter(37.766956, -122.438481, 13)
+
+     
+
+     # Draw
+     gmap.draw("my_map.html")
+     #gmap.draw("my_map.html")
