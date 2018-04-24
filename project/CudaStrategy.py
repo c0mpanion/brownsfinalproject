@@ -33,7 +33,7 @@ class CudaStrategy:
 
     """ Adds severity score column filled with zeros to the data frame """
     def add_column(self, df):
-        df['SEVERITY SCORE'] = np.zeros(dtype= "int32")
+        df['SEVERITY SCORE'] = np.zeros
 
     """ Prints header columns of the data frame """
     def print_columns(self):
