@@ -25,9 +25,9 @@ class CudaStrategy:
         persons_injured[1] = 0
         severity_score[1] = 0
 
-        persons_killed.astype("int32")
-        persons_injured.astype("int32")
-        severity_score.astype("int32")
+        persons_killed.astype(int)
+        persons_injured.astype(int)
+        severity_score.astype(int)
 
         print(persons_killed)
         print(persons_injured)
