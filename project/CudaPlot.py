@@ -43,7 +43,9 @@ class CudaPlot(gmplot.GoogleMapPlotter):
 	    }	
 	 """		
 	 )
-
+         func = mod.get_function("heatmapGPU")
+	 func(lats_args, lngs_args, heatmap_points, block = (400,1,1))
+	 heatmap_points = numpty.empty_like(heatmaps_points)
          self.heatmap_points.append((heatmap_points, settings))
 
       def _process_heatmap_kwargs(self, settings_dict):
