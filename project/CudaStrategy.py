@@ -13,23 +13,33 @@ class CudaStrategy:
 
     def __init__(self, data_frame):
         print("Starting Cuda strategy...")
+
         self.df = data_frame
-        self.add_column(self.df)
 
-        # Convert pandas data frame columns to numpy lists
-        persons_killed = self.df[['NUMBER OF PERSONS KILLED']].as_matrix
-        persons_injured = self.df[['NUMBER OF PERSONS INJURED']].as_matrix
-        severity_score = self.df[['SEVERITY SCORE']].as_matrix
+        mod = SourceModule("""
+        __global__ void scoring(float *dest, int *killed, int *injured)
+        {
+            const int i = blockIdx.x * blockDim.x + threadIdx.x;
+            dest[i] = ((((killed[i] * 2) + (injured[i])) / 20) * 5) ;
+        }
+        """)
+        scoring = mod.get_function("scoring")
 
-        persons_killed.astype(int)
-        persons_injured.astype(int)
-        severity_score.astype(int)
+        killed = self.df['NUMBER OF PERSONS KILLED'].values
+        injured = self.df['NUMBER OF PERSONS INJURED'].values
 
-        print(persons_killed)
-        print(persons_injured)
-        print(severity_score)
+        # killed = np.array([2, 3, 1, 0])
+        # injured = np.array([1, 4, 5, 1])
 
-        self.scoring(persons_killed, persons_injured, severity_score)
+        print("Killed size: " + str(len(killed)))
+        print("Injured size: " + str(len(injured)))
+
+        dest = np.zeros_like(killed)
+        scoring(
+            cuda.Out(dest), cuda.In(killed), cuda.In(injured),
+            block=(400, 1, 1))
+
+        print dest
 
 
     """ Adds severity score column filled with zeros to the data frame """
@@ -59,6 +69,8 @@ class CudaStrategy:
 
         scoring_func = scorefunc.get_function("scoring")
 
-        scoring_func(cuda.Out(score), cuda.In(killed), cuda.In(injured), block=(400, 2, 1))
+        scoring_func(
+            cuda.Out(score), cuda.In(killed), cuda.In(injured), block=(400, 2, 1)
+        )
 
         print(score)
