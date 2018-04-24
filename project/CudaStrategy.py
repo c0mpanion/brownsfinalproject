@@ -21,9 +21,9 @@ class CudaStrategy:
         persons_injured = self.df[['NUMBER OF PERSONS INJURED']].as_matrix
         severity_score = self.df[['SEVERITY SCORE']].as_matrix
 
-        persons_killed.astype(np.int32)
-        persons_injured.astype(np.int32)
-        severity_score.astype(np.int32)
+        persons_killed.astype(int)
+        persons_injured.astype(int)
+        severity_score.astype(int)
 
         print(persons_killed)
         print(persons_injured)
