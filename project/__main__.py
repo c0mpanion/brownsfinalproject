@@ -4,10 +4,9 @@ import time
 import os
 import sys
 
-# from LinearStrategy import LinearStrategy
+from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
 from CudaStrategy import CudaStrategy
-
 
 
 def import_csv():
@@ -38,8 +37,8 @@ def main():
     print("Reading csv file took ", time.time() - start_time, "to run")
 
     # Run strategies
-    #ls = LinearStrategy(df_collisions)
-    # ps = ParallelStrategy(df_collisions)
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
 
     # ['NUMBER OF PEDESTRIANS INJURED'].mean()
