@@ -33,7 +33,7 @@ class CudaStrategy:
 
     """ Adds severity score column filled with zeros to the data frame """
     def add_column(self, df):
-        df['SEVERITY SCORE'] = np.zeros
+        df['SEVERITY SCORE'] = np.zeros(dtype= "int32")
 
     """ Prints header columns of the data frame """
     def print_columns(self):
@@ -47,20 +47,20 @@ class CudaStrategy:
     """
     def scoring(self, killed, injured, score):
         """Send the lists to the gpu, score each row, return lists back to CPU"""
-        killed_gpu = gpuarray.to_gpu(killed)
-        injured_gpu = gpuarray.to_gpu(injured)
-        scored_gpu = gpuarray.to_gpu(score)
 
-        """Uses elementwise kernel within PyCuda: first line takes our arrays as arguments,
-        the second line takes the operation on each element with i being the index, and the
-        third line names the function"""
-        scoring_function = ElementwiseKernel(
-                "int *killed, int *injured, int *score",
-                "score[i] = (((killed[i] * 2) + (injured[i])) / 2 * 20) * 5",
-                "scoring_function")
+        killed = np.astype(np.int32);
+        injured = np.astype()
+        scorefunc = SourceModule("""
+        __global__ void scoring(int *killed, int *injured, int *score)
+        {
+            const int i = blockIdx.x * blockDim.x + threadIdx.x;
+            score[i] = ((((killed[i] * 2) + (injured[i])) / 20) * 5) ;
+        }
+        
+        """)
 
-        # Implements the scoring function on our GPU arrays, retrieves our new score as a np array
+        scoring_func = scorefunc.get_function("scoring")
 
-        ElementwiseKernel(killed_gpu, injured_gpu, scored_gpu)
-        new_score = scored_gpu.get()
-        print(new_score)
+        scoring_func(cuda.Out(score), cuda.In(killed), cuda.In(injured), block=(400, 1, 1))
+
+        print(score)
