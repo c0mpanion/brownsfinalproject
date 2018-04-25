@@ -68,16 +68,17 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 N = tempLats.nbytes
 	 print("works here 3")
 	 #C Implementation of commented out code above
-	 heatmapGPU = pycuda.compiler.SourceModule("""
+	 heatmapGPU = SourceModule("""
 	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_points)
 	    {
+	        printf("works here in module 1"); 
 		int idx = blockIdx.x;
 		int idy = blockIdy.y;
 	        if (idx < N)
 			heatmap_points[idx][0] = lats[idx]; #Column 0 is for lats values
 		if (idy < N) 
 			heatmpa_points[idy][1] = lngs[idy]; #Column 1 is for lngs values
-		printf("works here in module")
+		printf("works here in module 2");
 	    }	
 	    """)
 	
