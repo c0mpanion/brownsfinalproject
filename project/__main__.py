@@ -18,8 +18,8 @@ def import_csv():
         "NUMBER OF PERSONS KILLED": int,
         "BOROUGH": str,
         "ZIP CODE": str,
-        "LATITUDE": int,
-        "LONGITUDE": int,
+        "LATITUDE": float,
+        "LONGITUDE": float,
     })
     return data_frame
 
@@ -39,8 +39,8 @@ def main():
     print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
-    # ls = LinearStrategy(df_collisions)
-    # ps = ParallelStrategy(df_collisions)
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
 
     # ['NUMBER OF PEDESTRIANS INJURED'].mean()
