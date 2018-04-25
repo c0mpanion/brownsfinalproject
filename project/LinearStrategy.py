@@ -1,6 +1,7 @@
-import numpy as np
-from collections import deque
 import time
+from collections import deque
+
+import numpy as np
 
 
 class LinearStrategy:
@@ -27,12 +28,10 @@ class LinearStrategy:
         killed = self.df[self.LABEL_KILLED].values
         injured = self.df[self.LABEL_INJURED].values
 
+        # Deque is a list-like container with faster performance
         scores = deque()
         for x, y in zip(killed, injured):
-            score = self.score_row(x, y)
-
-            # Only append positive scores
-            scores.append(score)
+            scores.append(self.score_row(x, y))
 
         # Return list of scores
         return np.array(scores)

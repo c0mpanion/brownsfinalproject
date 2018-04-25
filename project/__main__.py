@@ -37,8 +37,8 @@ def main():
     print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
-    ls = LinearStrategy(df_collisions)
-    ps = ParallelStrategy(df_collisions)
+    # ls = LinearStrategy(df_collisions)
+    # ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
 
     # ['NUMBER OF PEDESTRIANS INJURED'].mean()
