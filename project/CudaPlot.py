@@ -43,11 +43,14 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
          heatmap_points = []
  
 	 heatmap_points = numpy.array(heatmap_points)
+	 heatmap_points = numpy.array([[lats],[lngs]], numpy.float32)
+
 	 lats = numpy.array(lats)
 	 lngs = numpy.array(lngs)
 	 #GPU Implementation
 	 #Change lists to Numpy Arrays 
-         heatmap_points = heatmap_points.astype(numpy.float32)
+         # heatmap_points = heatmap_points.astype(numpy.float32)
+	
 	 tempLats = lats.astype(numpy.float32)
 	 tempLngs = lngs.astype(numpy.float32)
          
@@ -62,7 +65,7 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 print ("works here 2")
 	 #Transfer data from CPU(Host) to GPU(Device) 
 	 #cuda.memcpy_htod(lats_gpu, tempLats)
-	 #cuda.memcpy_htod(lngs_gpu, tempLngs)
+	 #cuda.memcpy_htod(lngs_gpu, temIpLngs)
 	 #cuda.memcpy_htod(points_gpu, heatmap_points)
 
 	 
@@ -71,15 +74,15 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 mod = SourceModule("""
 	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_pts)
 	    {
-		//printf("works here in module 1");
+		printf("works here in module 1");
 		int N = (sizeof(lats) - sizeof(int))- 1; 
 		int idx = blockIdx.x;
 		int idy = blockIdx.y;
 	        if (idx < N && idy < N){
-			heatmap_pts[idx][0] = lats[idx]; 
-			heatmap_pts[idy][1] = lngs[idy];
+			heatmap_pts[0][idx] = lats[idx]; 
+			heatmap_pts[1][idy] = lngs[idy];
 		}
-		//printf("works here in module 2");
+		printf("works here in module 2");
 	    }	
 	    """)
 	
@@ -93,8 +96,9 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 tempPoints = numpy.empty_like(heatmap_points)
 	 #cuda.memcpy_dtoh(tempPoints, points_gpu)
          
-         heatmapGPU(cuda.Out(tempPoints), cuda.In(tempLats), cuda.In(tempLngs),block=(32, 32, 1), grid=(2,1))
 	 print("works here 6")
+         heatmapGPU(cuda.Out(tempPoints), cuda.In(tempLats), cuda.In(tempLngs),block=(32, 32, 1), grid=(1213,1))
+	 print("works here 7")
 	 #Convert back to list for following line
 	 heatmaps_points = tempPoints.tolist()
 
