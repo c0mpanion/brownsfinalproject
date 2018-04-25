@@ -32,14 +32,25 @@ class ParallelStrategy:
         # Multiple threads will use this, how to handle race conditions?
         shared_dest = deque()
 
+        # Shared variables for each thread to communicate
+        manager = multiprocessing.Manager()
+        shared_dict = manager.dict()
+
+        jobs = []
         for i in range(len(killed)):
-            p = multiprocessing.Process(target=self.score_group, args=(shared_dest, killed[i], injured[i], ))
+            p = multiprocessing.Process(target=self.score_group, args=(i, shared_dict, killed[i], injured[i], ))
+            jobs.append(p)
             p.start()
+
+        for proc in jobs:
+            proc.join()
+
+        print shared_dict.values()
 
         # Convert deque to array
         dest = np.array(shared_dest)
 
-    def score_group(self, shared_dest, killed, injured):
+    def score_group(self, process_num, shared_dict, killed, injured):
         """Score groups of collisions by zip code"""
         # Deque is a list-like container with faster performance
         scores = deque()
@@ -49,7 +60,9 @@ class ParallelStrategy:
             scores.append(self.score_row(x, y))
 
         # Append to destination deque
-        shared_dest.append(scores)
+        # shared_dest.append(scores)
+        shared_dict[process_num] = np.array(scores)
+        return shared_dict
 
     def score_row(self, killed, injured):
         """Score individual collision row"""

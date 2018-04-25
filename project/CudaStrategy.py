@@ -16,7 +16,8 @@ class CudaStrategy:
 
         # Run scoring function
         total_scores = self.score_df()
-        print(total_scores.tolist())
+        print total_scores.tolist()[0:99]
+        #print(total_scores.tolist())
 
     def add_column(self):
         """ Adds severity score column filled with zeros to the data frame """
@@ -34,33 +35,36 @@ class CudaStrategy:
         that fraction by 5 for a severity score of 0-5"""
 
         mod = SourceModule("""
-        __global__ void score_function(int *dest, int killed, int injured)
+        __global__ void score_function(float *dest, int* killed, int* injured)
         {
-            const int i = threadIdx.x;
-            //const int i = blockIdx.x * blockDim.x + threadIdx.x;
-            dest[i] = i;
-            //dest[i] = ((((killed[i] * 2.0) + (injured[i] * 1.0)) / 5.0) * 5.0) ;
+            //const int i = threadIdx.x;
+            const int i = blockIdx.x * blockDim.x + threadIdx.x;
+            //dest[i] = 4;
+            dest[i] = ((((killed[i] * 2.0) + (injured[i] * 1.0)) / 5.0) * 5.0) ;
         }
         """)
         score_function = mod.get_function("score_function")
 
-        # killed = self.df['NUMBER OF PERSONS KILLED'].values.astype(float)
-        # injured = self.df['NUMBER OF PERSONS INJURED'].values.astype(np.float32)
+        killed = self.df['NUMBER OF PERSONS KILLED'].values.astype(np.int32)
+        injured = self.df['NUMBER OF PERSONS INJURED'].values.astype(np.int32)
 
-        killed = np.array([2, 3, 4, 5])
-        injured = np.array([3, 5, 6, 1])
+        # killed = np.array([2, 3, 4, 5])
+        # injured = np.array([3, 5, 6, 1])
 
         print("Killed size: " + str(len(killed)))
         print("Injured size: " + str(len(injured)))
 
-        dest = np.zeros_like(killed)
+        dest = np.zeros_like(killed, dtype=(float))
 
         # Run kernel
         score_function(
             cuda.Out(dest),
-            cuda.In(np.int32(killed)),
-            cuda.In(np.int32(injured)),
-            block=(1000, 1, 1)
+            #cuda.In(np.int32(killed)),
+            #cuda.In(np.int32(injured)),
+            cuda.In(killed),
+            cuda.In(injured),
+            block=(1000, 1, 1),
+            grid=(2,1)
         )
         # score_function(
         #     drv.Out(dest),
