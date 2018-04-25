@@ -114,6 +114,7 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
          dissipation_string = 'true' if settings_dict['dissipating'] else 'false'
          settings_string += "heatmap.set('dissipating', %s);\n" % (dissipation_string)
 
+	
          gradient = settings_dict['gradient']
          if gradient:
              gradient_string = "var gradient = [\n"
