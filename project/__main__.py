@@ -18,6 +18,8 @@ def import_csv():
         "NUMBER OF PERSONS KILLED": int,
         "BOROUGH": str,
         "ZIP CODE": str,
+        "LATITUDE": int,
+        "LONGITUDE": int,
     })
     return data_frame
 
