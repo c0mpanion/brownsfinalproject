@@ -71,20 +71,21 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 heatmapGPU = SourceModule("""
 	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_points)
 	    {
-	        printf("works here in module 1"); 
+		printf("works here in module 1");
+		int N = (sizeof(lats) - sizeof(int))- 1; 
 		int idx = blockIdx.x;
-		int idy = blockIdy.y;
+		int idy = blockIdx.y;
 	        if (idx < N)
-			heatmap_points[idx][0] = lats[idx]; #Column 0 is for lats values
+			heatmap_points[idx][0] = lats[idx]; 
 		if (idy < N) 
-			heatmpa_points[idy][1] = lngs[idy]; #Column 1 is for lngs values
+			heatmap_points[idy][1] = lngs[idy];
 		printf("works here in module 2");
 	    }	
 	    """)
 	
   	 print("works here 4")
  	 #Execute kernel function using GPU versions of the "Lists" as args
-         func = mod.get_function("heatmapGPU")
+         func = heatmapGPU.get_function("heatmapGPU")
 	 func(lats_gpu, lngs_gpu, points_gpu, block = (400,1,1))
 
 	 print("works here 5")
