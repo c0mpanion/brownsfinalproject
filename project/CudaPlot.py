@@ -55,44 +55,45 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 
 	 		
 	 #Allocate memory in GPU  
-	 lats_gpu = cuda.mem_alloc(tempLats.nbytes)
-	 lngs_gpu = cuda.mem_alloc(tempLngs.nbytes)
-	 points_gpu = cuda.mem_alloc(tempLats.nbytes*2)
+	 #lats_gpu = cuda.mem_alloc(tempLats.nbytes)
+	 #lngs_gpu = cuda.mem_alloc(tempLngs.nbytes)
+	 #points_gpu = cuda.mem_alloc(tempLats.nbytes*2)
 
 	 print ("works here 2")
 	 #Transfer data from CPU(Host) to GPU(Device) 
-	 cuda.memcpy_htod(lats_gpu, tempLats)
-	 cuda.memcpy_htod(lngs_gpu, tempLngs)
+	 #cuda.memcpy_htod(lats_gpu, tempLats)
+	 #cuda.memcpy_htod(lngs_gpu, tempLngs)
 	 #cuda.memcpy_htod(points_gpu, heatmap_points)
 
-	 N = tempLats.nbytes
+	 
 	 print("works here 3")
 	 #C Implementation of commented out code above
-	 heatmapGPU = SourceModule("""
-	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_points)
+	 mod = SourceModule("""
+	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_pts)
 	    {
-		printf("works here in module 1");
+		//printf("works here in module 1");
 		int N = (sizeof(lats) - sizeof(int))- 1; 
 		int idx = blockIdx.x;
 		int idy = blockIdx.y;
-	        if (idx < N)
-			heatmap_points[idx][0] = lats[idx]; 
-		if (idy < N) 
-			heatmap_points[idy][1] = lngs[idy];
-		printf("works here in module 2");
+	        if (idx < N && idy < N){
+			heatmap_pts[idx][0] = lats[idx]; 
+			heatmap_pts[idy][1] = lngs[idy];
+		}
+		//printf("works here in module 2");
 	    }	
 	    """)
 	
   	 print("works here 4")
  	 #Execute kernel function using GPU versions of the "Lists" as args
-         func = heatmapGPU.get_function("heatmapGPU")
-	 func(lats_gpu, lngs_gpu, points_gpu, block = (400,1,1))
+         heatmapGPU = mod.get_function("heatmapGPU")
+	 #func(lats_gpu, lngs_gpu, points_gpu, block = (32,32,1))
 
 	 print("works here 5")
 	 #Bring back data to the CPU from temp var and into constructor variable heatmap_points
-	 tempPoints = numpty.empty_like(heatmaps_points)
-	 cuda.memcpy_dtoh(tempPoints, points_gpu)
-
+	 tempPoints = numpy.empty_like(heatmap_points)
+	 #cuda.memcpy_dtoh(tempPoints, points_gpu)
+         
+         heatmapGPU(cuda.Out(tempPoints), cuda.In(tempLats), cuda.In(tempLngs),block=(32, 32, 1), grid=(2,1))
 	 print("works here 6")
 	 #Convert back to list for following line
 	 heatmaps_points = tempPoints.tolist()
