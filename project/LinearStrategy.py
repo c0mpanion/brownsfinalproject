@@ -16,7 +16,8 @@ class LinearStrategy:
         # Get scores
         start_time = time.time()
         scores = self.score_df()
-        print("* Linear strategy completed in {} seconds...".format(time.time() - start_time))
+        print("* Linear strategy completed in {} seconds with {} scores..."
+              .format(time.time() - start_time, len(scores)))
 
     def print_columns(self):
         print(self.df.columns)

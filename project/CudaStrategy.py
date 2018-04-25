@@ -21,7 +21,8 @@ class CudaStrategy:
         # Run scoring function
         start_time = time.time()
         total_scores = self.score_df()
-        print("* Cuda strategy completed in {} seconds...".format(time.time() - start_time))
+        print("* Cuda strategy completed in {} seconds with {} scores..."
+              .format(time.time() - start_time, len(total_scores)))
 
     def add_column(self):
         """ Adds severity score column filled with zeros to the data frame """
