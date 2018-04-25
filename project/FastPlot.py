@@ -39,14 +39,14 @@ class FastPlotter(gmplot.GoogleMapPlotter):
 
         #Shared variables for each thread to communicate
         manager = multiprocessing.Manager()
-        shared_dict = manager.dict()
+        sharedDict = manager.dict()
 
         # List of jobs
         jobs = []
 
         # Iterate through all zip codes and create a process
         for i in range(len(lats)):
-            p = multiprocessing.Process(target=dictionary_append, args=(lats[i], lngs[i], heatmap_points))
+            p = multiprocessing.Process(target=self.dictionary_append, args=(lats[i], i, lngs[i], sharedDict))
             jobs.append(p)
             p.start()
 
@@ -54,9 +54,21 @@ class FastPlotter(gmplot.GoogleMapPlotter):
         for proc in jobs:
 	    proc.join()
 
-        self.heatmap_points.append((heatmap_points, settings))
+	
+	#Needs to be converted to list to remove key error
+        heatmap_points = list(sharedDict.values())
+	print(heatmap_points)
+
+        self.heatmap_points.append((sharedDict, settings))
      
-	 	 
+    def dictionary_append(self, process_num, sendrlist1, sendrlist2, sharedDict):
+
+	tempList = deque() 
+        tempList.append((sendrlist1, sendrlist2))
+	sharedDict[process_num] = tempList
+	return sharedDict
+	
+	
     def _process_heatmap_kwargs(self, settings_dict):
         settings_string = ''
         settings_string += "heatmap.set('threshold', %d);\n" % settings_dict['threshold']
@@ -83,7 +95,6 @@ if __name__ == '__main__':
        path4 = [(37.433302 , 37.431257 , 37.427644 , 37.430303), (-122.14488, -122.133121, -122.137799, -122.148743)] 	
        gmap.threadedHeatMap(path4[0], path4[1], radius=40)
        gmap.draw("gmplot_map.html")
-
 
 
 
