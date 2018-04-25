@@ -12,14 +12,14 @@ class ParallelStrategy:
 
     def __init__(self, data_frame):
         """Parallel strategy approach"""
-        print("Starting parallel strategy...")
+        print("\nStarting parallel strategy...")
         self.df = data_frame
         self.df_groups = self.df.groupby('ZIP CODE')
 
         # Get scores
         start_time = time.time()
         scores = self.score_df()
-        print("Parallel strategy completed in {} seconds...".format(time.time() - start_time))
+        print("* Parallel strategy completed in {} seconds...".format(time.time() - start_time))
 
     def print_columns(self):
         print(self.df.columns)
@@ -45,7 +45,7 @@ class ParallelStrategy:
         for proc in jobs:
             proc.join()
 
-        print shared_dict.values()
+        # print shared_dict.values()
 
         # Convert deque to array
         dest = np.array(shared_dest)
