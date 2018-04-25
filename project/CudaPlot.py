@@ -49,7 +49,7 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 lngs = numpy.array(lngs)
 	 #GPU Implementation
 	 #Change lists to Numpy Arrays 
-         # heatmap_points = heatmap_points.astype(numpy.float32)
+         #heatmap_points = heatmap_points.astype(numpy.float32)
 	
 	 tempLats = lats.astype(numpy.float32)
 	 tempLngs = lngs.astype(numpy.float32)
@@ -74,15 +74,16 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 	 mod = SourceModule("""
 	    __global__ void heatmapGPU(float *lats, float *lngs, float **heatmap_pts)
 	    {
-		printf("works here in module 1");
-		int N = (sizeof(lats) - sizeof(int))- 1; 
-		int idx = blockIdx.x;
-		int idy = blockIdx.y;
+		//printf("works here in module 1");
+		int N = (sizeof(lats) / sizeof(int)) - 1; 
+		int idx = blockIdx.x + threadIdx.x;
+		int idy = blockIdx.y + threadIdx.y;
 	        if (idx < N && idy < N){
 			heatmap_pts[0][idx] = lats[idx]; 
 			heatmap_pts[1][idy] = lngs[idy];
 		}
-		printf("works here in module 2");
+			
+		//printf("works here in module 2");
 	    }	
 	    """)
 	
@@ -93,9 +94,9 @@ class CudaPlotter(gmplot.GoogleMapPlotter):
 
 	 print("works here 5")
 	 #Bring back data to the CPU from temp var and into constructor variable heatmap_points
-	 tempPoints = numpy.empty_like(heatmap_points)
+	 tempPoints = numpy.zeros_like(heatmap_points)
 	 #cuda.memcpy_dtoh(tempPoints, points_gpu)
-         
+         print(tempPoints)
 	 print("works here 6")
          heatmapGPU(cuda.Out(tempPoints), cuda.In(tempLats), cuda.In(tempLngs),block=(32, 32, 1), grid=(1213,1))
 	 print("works here 7")
@@ -131,13 +132,14 @@ if __name__ == '__main__':
      # Test code for checking to see if results are the same or different from the parent class
      
      gmap = gmplot.GoogleMapPlotter(37.766956, -122.438481, 13)
-     cudamap = CudaPlotter(37.766956, -122.438481, 13)	
+     gmap2 = gmplot.GoogleMapPlotter(37.766956, -122.438481, 13)	
 
      path4 = [(37.433302 , 37.431257 , 37.427644 , 37.430303), (-122.14488, -122.133121, -122.137799, -122.148743)]
      
      #Both Heatmap function require Python List type in the args	
      gmap.heatmap(path4[0], path4[1], threshold=10, radius=40, dissipating=False)
-     cudamap.heatmap_GPU(path4[0], path4[1], threshold=10, radius=40, dissipating=False)	
+     gmap2.heatmap(path4[0], path4[1], threshold=10, radius=40, dissipating=False, gradient=[(30,30,30,0), (30,30,30,1), (50, 50, 50, 1)])
+     	
      # Draw
      gmap.draw("gmplot_map.html")
-     cudamap.draw("cuda_plot.html")	    
+     gmap2.draw("gmplot_map2.html")	    
