@@ -6,11 +6,6 @@ import numpy as np
 import pycuda.autoinit
 from pycuda.compiler import SourceModule
 import pycuda.driver as cuda
-import pycuda.gpuarray as gpuarray
-from pycuda.elementwise import ElementwiseKernel
-
-# from gmplot import gmplot
-
 
 class CudaStrategy:
     """Cuda strategy approach"""
@@ -42,9 +37,7 @@ class CudaStrategy:
         mod = SourceModule("""
         __global__ void score_function(float *dest, float* killed, float* injured)
         {
-            //const int i = threadIdx.x;
             const int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-            //dest[i] = 4;
             dest[i] = ((((killed[i] * 2.0) + (injured[i] * 1.0)) / 8.0) * 5.0);
         }
         """)
@@ -52,15 +45,6 @@ class CudaStrategy:
 
         killed = self.df['NUMBER OF PERSONS KILLED'].values.astype(np.float32)
         injured = self.df['NUMBER OF PERSONS INJURED'].values.astype(np.float32)
-
-        # killed = np.array([2, 3, 4, 5])
-        # injured = np.array([3, 5, 6, 1])
-
-        # print("Killed size: " + str(len(killed)))
-        # print("Injured size: " + str(len(injured)))
-
-        # print "Killed\n" + str(killed.tolist()[10:100])
-        # print "\nInjured\n" + str(injured.tolist()[10:100])
 
         dest = np.zeros_like(killed)
 
@@ -72,19 +56,6 @@ class CudaStrategy:
             block=(1024, 1, 1),
             grid=(1213, 1)
         )
-        # score_function(
-        #     drv.Out(dest),
-        #     drv.In(killed),
-        #     drv.In(injured),
-        #     block=(400, 1, 1)
-        # )
-
-        # print('Killed\tInjured\tScore')
-        # for i in range(1240868, 1240968):
-        #     # if killed[i] < 0 and injured < 0:
-        #     #     continue
-        #
-        #     print '%-12i%-12i%-12f' % (killed[i], injured[i], dest[i])
-
+        
         return dest
 
