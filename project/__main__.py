@@ -3,6 +3,7 @@ import pandas as pd
 import time
 import os
 import sys
+import argparse
 
 from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
@@ -28,10 +29,20 @@ def import_csv():
     return data_frame
 
 
+def parse_args():
+    """Parse arguments from the command line"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "-threads", help="specifies a thread count for parallel operations", type=int)
+    return parser.parse_args()
+
+
 def main():
     print("Python version: " + sys.version)
     print("Pandas version: " + pd.__version__)
     print("numpy version: " + np.__version__)
+
+    # Parse command line arguments
+    args = parse_args()
 
     # get the start time
     start_time = time.time()
@@ -44,28 +55,8 @@ def main():
 
     # Run strategies
     ls = LinearStrategy(df_collisions)
-    ps = ParallelStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions, args.t)
     cs = CudaStrategy(df_collisions)
-
-    # ['NUMBER OF PEDESTRIANS INJURED'].mean()
-    # print(mean)
-    # collisions.describe(include="all")
-
-    # add column for scoring
-    # data_frame = add_column(df_collisions)
-
-    # pulling needed columns from data frame for severity score
-    # df_killed = df_collisions['NUMBER OF PERSONS KILLED'].tolist()
-    # df_injured = df_collisions['NUMBER OF PERSONS INJURED'].tolist()
-    # df_score = data_frame['Severity Score'].tolist()
-
-    # converts the column lists to cuda arrays
-    # array_killed = np.array(df_killed, dtype=np.int32)
-    # array_injured = np.array(df_injured, dtype=np.int32)
-    # array_score = np.array(df_score, dtype=np.int32)
-
-    # score the cuda arrays using scoring function
-    # data_frame = scoring(cuda_killed, cuda_injured, cuda_score)
 
 
 main()
