@@ -7,6 +7,7 @@ import sys
 from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
 from CudaStrategy import CudaStrategy
+from FastPlot import FastPlotter
 
 
 def import_csv():
@@ -43,29 +44,52 @@ def main():
     print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
-    ls = LinearStrategy(df_collisions)
-    ps = ParallelStrategy(df_collisions)
+    #ls = LinearStrategy(df_collisions)
+   # ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
+    scores = CudaStrategy.total_scores
 
-    # ['NUMBER OF PEDESTRIANS INJURED'].mean()
-    # print(mean)
-    # collisions.describe(include="all")
+    # Pull out lat and long columns
+    lats = df_collisions['LATITUDE'].values.astype(np.float32)
+    longs = df_collisions['LONGITUDE'].values.astype(np.float32)
 
-    # add column for scoring
-    # data_frame = add_column(df_collisions)
+    print(np.shape(lats))
+    print(np.shape(longs))
+    print(np.shape(scores))
 
-    # pulling needed columns from data frame for severity score
-    # df_killed = df_collisions['NUMBER OF PERSONS KILLED'].tolist()
-    # df_injured = df_collisions['NUMBER OF PERSONS INJURED'].tolist()
-    # df_score = data_frame['Severity Score'].tolist()
 
-    # converts the column lists to cuda arrays
-    # array_killed = np.array(df_killed, dtype=np.int32)
-    # array_injured = np.array(df_injured, dtype=np.int32)
-    # array_score = np.array(df_score, dtype=np.int32)
+    latlongscores = np.column_stack((lats, longs, scores))
+    print(latlongscores)
 
-    # score the cuda arrays using scoring function
-    # data_frame = scoring(cuda_killed, cuda_injured, cuda_score)
+    latlongscores = np.sort(latlongscores, kind='mergesort')
+
+    # scoreslessthanone = latlongscores[latlongscores[:, ] <= 1.0]
+    # scoreslessthanonelats = scoreslessthanone[:, [0]]
+    # scoreslessthanonelongs = scoreslessthanone[:, [1]]
+
+    scoresonetotwo = latlongscores[latlongscores[:, 2] > 1.0, latlongscores[:, 2] <= 2.0]
+    scoresonetotwolats = scoresonetotwo[:, [0]]
+    scoresonetotwolongs = scoresonetotwo[:, [1]]
+
+    scorestwotothree = latlongscores[latlongscores[:, 2] > 2.0, latlongscores[:, 2] <= 3.0]
+    scorestwotothreelats = scorestwotothree[:, [0]]
+    scorestwotothreelongs = scorestwotothree[:, [1]]
+
+    scoresthreetofour = latlongscores[latlongscores[:, 2] > 3.0, latlongscores[:, 2] <= 4.0]
+    scoresthreetofourlats = scoresthreetofour[:, [0]]
+    scoresthreetofourlongs = scoresthreetofour[:, [1]]
+
+    scoresfourtofive = latlongscores[latlongscores[:, 2] > 4.0, latlongscores[:, 2] <= 5.0]
+    scoresfourtofivelats = scoresfourtofive[:, [0]]
+    scoresfourtofivelongs = scoresfourtofive[:, [1]]
+
+
+    gmap = FastPlotter()
+    gmap.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+    gmap.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
+    gmap.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
+    gmap.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
+    gmap.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
 
 
 main()
