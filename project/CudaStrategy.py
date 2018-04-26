@@ -7,6 +7,7 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 import pycuda.driver as cuda
 
+
 class CudaStrategy:
     """Cuda strategy approach"""
     def __init__(self, data_frame):
@@ -15,15 +16,16 @@ class CudaStrategy:
 
         # Run scoring function
         start_time = time.time()
-        total_scores = self.score_df()
+        CudaStrategy.total_scores = self.score_df()
         print("* Cuda strategy completed in {} seconds with {} scores..."
-              .format(time.time() - start_time, len(total_scores)))
+              .format(time.time() - start_time, len(CudaStrategy.total_scores)))
 
         # Test for invalid data or scoring function change
-        if total_scores[1000000] != 0 or total_scores[1000001] != 0.625:
+        if CudaStrategy.total_scores[1000000] != 0 or CudaStrategy.total_scores[1000001] != 0.625:
             raise ValueError("Cuda returned an unexpected score, [...{}, {}...].".format(
-                total_scores[1000000], total_scores[1000001]
+                CudaStrategy.total_scores[1000000], CudaStrategy.total_scores[1000001]
             ))
+
 
     def add_column(self):
         """ Adds severity score column filled with zeros to the data frame """
@@ -72,6 +74,6 @@ class CudaStrategy:
             block=(thread_size, 1, 1),
             grid=(core_size, 1)
         )
-        
+
         return output
 
