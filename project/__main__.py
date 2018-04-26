@@ -12,7 +12,7 @@ from CudaStrategy import CudaStrategy
 def import_csv():
     """Imports the NYPD collisions csv and returns a data frame for manipulation"""
     data_location = (os.path.join(os.path.dirname(__file__), 'data/NYPD_Motor_Vehicle_Collisions.csv'))
-    # data_frame = pd.read_csv(data_location, index_col='DATE')
+
     data_frame = pd.read_csv(data_location, dtype={
         "NUMBER OF PERSONS INJURED": int,
         "NUMBER OF PERSONS KILLED": int,
@@ -21,6 +21,10 @@ def import_csv():
         "LATITUDE": float,
         "LONGITUDE": float,
     })
+
+    # Add score column set to 0.0
+    data_frame['SCORE'] = pd.Series(0.0, index=data_frame.index)
+
     return data_frame
 
 
