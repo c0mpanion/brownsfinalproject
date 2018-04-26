@@ -4,6 +4,7 @@ import time
 import os
 import sys
 import argparse
+import gmplot
 
 from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
@@ -77,6 +78,7 @@ def main():
     scoreslessthanone = latlongscores[np.where((latlongscores[:, 2] > 0.0) * (latlongscores[:, 2] <= 1.0))]
     print("0-1")
     print(scoreslessthanone)
+    print(scoreslessthanone.shape)
     scoreslessthanonelats = scoreslessthanone[:, [0]]
     scoreslessthanonelongs = scoreslessthanone[:, [1]]
 
@@ -84,34 +86,49 @@ def main():
     scoresonetotwo = latlongscores[np.where((latlongscores[:, 2] > 1.0) * (latlongscores[:, 2] <= 2.0))]
     print("1-2")
     print(scoresonetotwo)
+    print(scoreslessthanone.shape)
     scoresonetotwolats = scoresonetotwo[:, [0]]
     scoresonetotwolongs = scoresonetotwo[:, [1]]
 
     scorestwotothree = latlongscores[np.where((latlongscores[:, 2] > 2.0) * (latlongscores[:, 2] <= 3.0))]
     print("2-3")
     print(scorestwotothree)
+    print(scoreslessthanone.shape)
     scorestwotothreelats = scorestwotothree[:, [0]]
     scorestwotothreelongs = scorestwotothree[:, [1]]
 
     scoresthreetofour = latlongscores[np.where((latlongscores[:, 2] > 3.0) * (latlongscores[:, 2] <= 4.0))]
     print("3-4")
     print(scoresthreetofour)
+    print(scoreslessthanone.shape)
     scoresthreetofourlats = scoresthreetofour[:, [0]]
     scoresthreetofourlongs = scoresthreetofour[:, [1]]
 
     scoresfourtofive = latlongscores[np.where((latlongscores[:, 2] > 4.0) * (latlongscores[:, 2] <= 5.0))]
     print("4-5")
     print(scoresfourtofive)
+    print(scoreslessthanone.shape)
     scoresfourtofivelats = scoresfourtofive[:, [0]]
     scoresfourtofivelongs = scoresfourtofive[:, [1]]
 
+    gmap1 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap1.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+    gmap1.draw("scores_less_than_one.html")
 
-    FastPlotter.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
-    FastPlotter.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
-    FastPlotter.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
-    FastPlotter.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
-    FastPlotter.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
-    FastPlotter.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
+    gmap2 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap2.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+
+    gmap3 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap3.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
+
+    gmap4 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap4.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
+
+    gmap5 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap5.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
+
+    gmap6 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap6.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
 
 
 main()
