@@ -61,10 +61,6 @@ class CudaStrategy:
         thread_size = self.get_thread_size()
         core_size = self.get_core_size(n)
 
-        print("n is " + str(n))
-        print("Core size = " + str(core_size))
-        print("thread size = " + str(thread_size))
-
         # Run kernel
         score_function = mod.get_function("score_function")
         score_function(
