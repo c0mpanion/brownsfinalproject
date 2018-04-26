@@ -12,7 +12,7 @@ class LinearStrategy:
 
         # Get scores
         start_time = time.time()
-        scores = self.score_df_with_index()
+        scores = self.score_df()
         print("* Linear strategy completed in {} seconds with {} scores..."
               .format(time.time() - start_time, len(scores)))
 
@@ -22,7 +22,7 @@ class LinearStrategy:
                 scores[1000000][0], scores[1000001][0]
             ))
 
-    def score_df_with_index(self):
+    def score_df(self):
         # Create a matrix array
         df = self.df[[
             'SCORE',
@@ -31,9 +31,6 @@ class LinearStrategy:
             'NUMBER OF PERSONS KILLED',
             'NUMBER OF PERSONS INJURED',
         ]].values.astype(np.float)
-
-        # Deque is a list-like container with faster performance
-        scores = deque()
 
         for i in range(len(df)):
             df[i][0] = self.score_row(df[i][3], df[i][4])
