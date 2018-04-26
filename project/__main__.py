@@ -3,6 +3,7 @@ import pandas as pd
 import time
 import os
 import sys
+import argparse
 
 from LinearStrategy import LinearStrategy
 from ParallelStrategy import ParallelStrategy
@@ -29,10 +30,20 @@ def import_csv():
     return data_frame
 
 
+def parse_args():
+    """Parse arguments from the command line"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "-threads", help="specifies a thread count for parallel operations", type=int)
+    return parser.parse_args()
+
+
 def main():
     print("Python version: " + sys.version)
     print("Pandas version: " + pd.__version__)
     print("numpy version: " + np.__version__)
+
+    # Parse command line arguments
+    args = parse_args()
 
     # get the start time
     start_time = time.time()
@@ -45,7 +56,7 @@ def main():
 
     # Run strategies
     #ls = LinearStrategy(df_collisions)
-   # ps = ParallelStrategy(df_collisions)
+    # ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
     scores = CudaStrategy.total_scores
 
@@ -85,7 +96,7 @@ def main():
 
 
     gmap = FastPlotter()
-    gmap.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+    # gmap.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
     gmap.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
     gmap.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
     gmap.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
