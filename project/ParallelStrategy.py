@@ -6,25 +6,17 @@ import numpy as np
 
 
 class ParallelStrategy:
-    LABEL_KILLED = "NUMBER OF PERSONS KILLED"
-    LABEL_INJURED = "NUMBER OF PERSONS INJURED"
-    ZIP_CODE = "ZIP_CODE"
-
     def __init__(self, data_frame, thread_count):
-        # Default parameters
+        """Parallel strategy approach using threads"""
         if thread_count is None:
             thread_count = 32
 
-        """Parallel strategy approach"""
         print("\nStarting parallel strategy with {} threads...".format(thread_count))
-
-        # Get data frame and fill empty zip code columns
         self.df = data_frame
 
-        # Get scores
+        # Run scoring function in parallel
         start_time = time.time()
-        scores = self.score_df_index(thread_count)
-
+        scores = self.score_df(thread_count)
         print("* Parallel strategy completed in {} seconds with {} scores..."
               .format(time.time() - start_time, len(scores)))
 
@@ -34,7 +26,8 @@ class ParallelStrategy:
                 scores[1000000][0], scores[1000001][0]
             ))
 
-    def score_df_index(self, thread_count):
+    def score_df(self, thread_count):
+        """Score a data frame in parallel with a thread count"""
         df = self.df[[
             'SCORE',
             'LATITUDE',
@@ -46,14 +39,14 @@ class ParallelStrategy:
         # Split array into equal number of elements for each thread to handle
         chunks = np.array_split(df, thread_count)
 
-        # Shared variables for each thread to communicate
+        # Shared dictionary for each thread to communicate (see: "pickling")
         manager = multiprocessing.Manager()
         shared_dict = manager.dict()
 
         # List of jobs
         jobs = []
 
-        # Iterate through all zip codes and create a process
+        # Create a thread to handle each chunk (split) of items
         for i in range(thread_count):
             p = multiprocessing.Process(target=self.score_group, args=(i, shared_dict, chunks[i]))
             jobs.append(p)
@@ -63,9 +56,9 @@ class ParallelStrategy:
         for proc in jobs:
             proc.join()
 
-        # Order is not important, merge all scores from dictionary
+        # Merge dictionary values into array
         values = chain.from_iterable(shared_dict.values())
-        return np.array(list(values))
+        return np.array(list(values))[:, [0, 1, 2]]
 
     def score_group(self, process_num, shared_dict, chunk):
         """Score groups of collisions by group of elements"""
