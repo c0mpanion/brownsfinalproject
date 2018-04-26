@@ -19,6 +19,12 @@ class CudaStrategy:
         print("* Cuda strategy completed in {} seconds with {} scores..."
               .format(time.time() - start_time, len(total_scores)))
 
+        # Test for invalid data or scoring function change
+        if total_scores[1000000] != 0 or total_scores[1000001] != 0.625:
+            raise ValueError("Cuda returned an unexpected score, [...{}, {}...].".format(
+                total_scores[1000000], total_scores[1000001]
+            ))
+
     def add_column(self):
         """ Adds severity score column filled with zeros to the data frame """
         self.df['SEVERITY SCORE'] = np.zeros
@@ -26,6 +32,12 @@ class CudaStrategy:
     def print_columns(self):
         """ Prints header columns of the data frame """
         print(self.df.columns)
+
+    def get_thread_size(self):
+        return 512
+
+    def get_core_size(self, n):
+        return int(round(n/self.get_thread_size() + 1))
 
     def score_df(self):
         """Scores each collision using a scoring function that gives
@@ -35,27 +47,31 @@ class CudaStrategy:
         that fraction by 5 for a severity score of 0-5"""
 
         mod = SourceModule("""
-        __global__ void score_function(float *dest, float* killed, float* injured)
+        __global__ void score_function(float *dest, float *killed, float *injured)
         {
             const int i = (blockIdx.x * blockDim.x) + threadIdx.x;
-            dest[i] = ((((killed[i] * 2.0) + (injured[i] * 1.0)) / 8.0) * 5.0);
+            dest[i] = (((killed[i] * 2.0) + injured[i]) / 8.0) * 5.0;
         }
         """)
-        score_function = mod.get_function("score_function")
-
         killed = self.df['NUMBER OF PERSONS KILLED'].values.astype(np.float32)
         injured = self.df['NUMBER OF PERSONS INJURED'].values.astype(np.float32)
 
-        dest = np.zeros_like(killed)
+        # Calculate kernel params
+        n = len(killed)
+        output = np.zeros_like(killed)
+        thread_size = self.get_thread_size()
+        core_size = self.get_core_size(len(output))
 
         # Run kernel
+        score_function = mod.get_function("score_function")
+
         score_function(
-            cuda.Out(dest),
+            cuda.Out(output),
             cuda.In(killed),
             cuda.In(injured),
-            block=(1024, 1, 1),
-            grid=(1213, 1)
+            block=(thread_size, 1, 1),
+            grid=(core_size, 1)
         )
         
-        return dest
+        return output
 
