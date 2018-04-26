@@ -56,81 +56,67 @@ def main():
     print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
-    #ls = LinearStrategy(df_collisions)
-    # ps = ParallelStrategy(df_collisions)
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions)
     cs = CudaStrategy(df_collisions)
     scores = CudaStrategy.total_scores
 
     # Pull out lat and long columns
     lats = df_collisions['LATITUDE'].values.astype(np.float32)
     longs = df_collisions['LONGITUDE'].values.astype(np.float32)
-
-    print(np.shape(lats))
-    print(np.shape(longs))
-    print(np.shape(scores))
-
-
     latlongscores = np.column_stack((lats, longs, scores))
-    #print(latlongscores)
-
-    #latlongscores = np.sort(latlongscores, kind='mergesort')
 
     scoreslessthanone = latlongscores[np.where((latlongscores[:, 2] > 0.0) * (latlongscores[:, 2] <= 1.0))]
-    print("0-1")
-    print(scoreslessthanone)
-    print(scoreslessthanone.shape)
     scoreslessthanonelats = scoreslessthanone[:, [0]]
     scoreslessthanonelongs = scoreslessthanone[:, [1]]
-    print(scoreslessthanonelats)
-    print(scoreslessthanonelongs)
-
 
     scoresonetotwo = latlongscores[np.where((latlongscores[:, 2] > 1.0) * (latlongscores[:, 2] <= 2.0))]
-    print("1-2")
-    print(scoresonetotwo)
-    print(scoreslessthanone.shape)
     scoresonetotwolats = scoresonetotwo[:, [0]]
     scoresonetotwolongs = scoresonetotwo[:, [1]]
 
     scorestwotothree = latlongscores[np.where((latlongscores[:, 2] > 2.0) * (latlongscores[:, 2] <= 3.0))]
-    print("2-3")
-    print(scorestwotothree)
-    print(scoreslessthanone.shape)
     scorestwotothreelats = scorestwotothree[:, [0]]
     scorestwotothreelongs = scorestwotothree[:, [1]]
 
     scoresthreetofour = latlongscores[np.where((latlongscores[:, 2] > 3.0) * (latlongscores[:, 2] <= 4.0))]
-    print("3-4")
-    print(scoresthreetofour)
-    print(scoreslessthanone.shape)
     scoresthreetofourlats = scoresthreetofour[:, [0]]
     scoresthreetofourlongs = scoresthreetofour[:, [1]]
 
     scoresfourtofive = latlongscores[np.where((latlongscores[:, 2] > 4.0) * (latlongscores[:, 2] <= 5.0))]
-    print("4-5")
-    print(scoresfourtofive)
-    print(scoreslessthanone.shape)
     scoresfourtofivelats = scoresfourtofive[:, [0]]
     scoresfourtofivelongs = scoresfourtofive[:, [1]]
 
-    gmap1 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    gmap1.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
-    gmap1.draw("scores_less_than_one.html")
+    start_time = time.time()
 
-    # gmap2 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    # gmap2.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
-    #
-    # gmap3 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    # gmap3.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
-    #
-    # gmap4 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    # gmap4.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
-    #
-    # gmap5 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    # gmap5.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
-    #
-    # gmap6 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
-    # gmap6.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
+    gmap = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap.heatmap(scoreslessthanonelats, scoreslessthanonelongs)
+    gmap.draw("scores_less_than_one.html")
+    print("Finished plotting scores less than one in {} seconds...".format(time.time() - start_time))
+
+
+    start_time = time.time()
+    gmap2 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap2.heatmap(scoresonetotwolats, scoresonetotwolongs)
+    gmap2.draw("scores_one_two.html")
+    print("Finished plotting scores between one and two in {} seconds...".format(time.time() - start_time))
+
+    start_time = time.time()
+    gmap3 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap3.heatmap(scorestwotothreelats, scorestwotothreelongs)
+    gmap3.draw("scores_two_three.html")
+    print("Finished plotting scores between two and three in {} seconds...".format(time.time() - start_time))
+
+    start_time = time.time()
+    gmap4 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap4.heatmap(scoresthreetofourlats, scoresthreetofourlongs)
+    gmap4.draw("scores_three_four.html")
+    print("Finished plotting scores between three and four in {} seconds...".format(time.time() - start_time))
+
+    start_time = time.time()
+    gmap5 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
+    gmap5.heatmap(scoresfourtofivelats, scoresfourtofivelongs)
+    gmap5.draw("scores_four_five.html")
+    print("Finished plotting scores between four and five in {} seconds...".format(time.time() - start_time))
 
 
 main()
