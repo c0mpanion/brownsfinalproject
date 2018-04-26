@@ -70,37 +70,48 @@ def main():
 
 
     latlongscores = np.column_stack((lats, longs, scores))
-    print(latlongscores)
+    #print(latlongscores)
 
-    latlongscores = np.sort(latlongscores, kind='mergesort')
+    #latlongscores = np.sort(latlongscores, kind='mergesort')
 
-    # scoreslessthanone = latlongscores[latlongscores[:, ] <= 1.0]
-    # scoreslessthanonelats = scoreslessthanone[:, [0]]
-    # scoreslessthanonelongs = scoreslessthanone[:, [1]]
+    scoreslessthanone = latlongscores[np.where((latlongscores[:, 2] > 0.0) * (latlongscores[:, 2] <= 1.0))]
+    print("0-1")
+    print(scoreslessthanone)
+    scoreslessthanonelats = scoreslessthanone[:, [0]]
+    scoreslessthanonelongs = scoreslessthanone[:, [1]]
 
-    scoresonetotwo = latlongscores[latlongscores[:, 2] > 1.0, latlongscores[:, 2] <= 2.0]
+
+    scoresonetotwo = latlongscores[np.where((latlongscores[:, 2] > 1.0) * (latlongscores[:, 2] <= 2.0))]
+    print("1-2")
+    print(scoresonetotwo)
     scoresonetotwolats = scoresonetotwo[:, [0]]
     scoresonetotwolongs = scoresonetotwo[:, [1]]
 
-    scorestwotothree = latlongscores[latlongscores[:, 2] > 2.0, latlongscores[:, 2] <= 3.0]
+    scorestwotothree = latlongscores[np.where((latlongscores[:, 2] > 2.0) * (latlongscores[:, 2] <= 3.0))]
+    print("2-3")
+    print(scorestwotothree)
     scorestwotothreelats = scorestwotothree[:, [0]]
     scorestwotothreelongs = scorestwotothree[:, [1]]
 
-    scoresthreetofour = latlongscores[latlongscores[:, 2] > 3.0, latlongscores[:, 2] <= 4.0]
+    scoresthreetofour = latlongscores[np.where((latlongscores[:, 2] > 3.0) * (latlongscores[:, 2] <= 4.0))]
+    print("3-4")
+    print(scoresthreetofour)
     scoresthreetofourlats = scoresthreetofour[:, [0]]
     scoresthreetofourlongs = scoresthreetofour[:, [1]]
 
-    scoresfourtofive = latlongscores[latlongscores[:, 2] > 4.0, latlongscores[:, 2] <= 5.0]
+    scoresfourtofive = latlongscores[np.where((latlongscores[:, 2] > 4.0) * (latlongscores[:, 2] <= 5.0))]
+    print("4-5")
+    print(scoresfourtofive)
     scoresfourtofivelats = scoresfourtofive[:, [0]]
     scoresfourtofivelongs = scoresfourtofive[:, [1]]
 
 
-    gmap = FastPlotter()
-    # gmap.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
-    gmap.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
-    gmap.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
-    gmap.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
-    gmap.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
+    FastPlotter.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+    FastPlotter.threadedHeatMap(scoreslessthanonelats, scoreslessthanonelongs)
+    FastPlotter.threadedHeatMap(scoresonetotwolats, scoresonetotwolongs)
+    FastPlotter.threadedHeatMap(scorestwotothreelats, scorestwotothreelongs)
+    FastPlotter.threadedHeatMap(scoresthreetofourlats, scoresthreetofourlongs)
+    FastPlotter.threadedHeatMap(scoresfourtofivelats, scoresfourtofivelongs)
 
 
 main()
