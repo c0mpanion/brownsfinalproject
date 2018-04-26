@@ -9,6 +9,9 @@ class FastPlotter(gmplot.GoogleMapPlotter):
     
     def threadedHeatMap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=1, dissipating=True):
         """
+	Modified version of the heatmap function from the parent class GoogleMapPlotter. Raw Lists are passed in for 
+	lats and lngs.
+	
         :param lats: list of latitudes
         :param lngs: list of longitudes
         :param maxIntensity:(int) max frequency to use when plotting. Default (None) uses max value on map domain.
