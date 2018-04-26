@@ -47,9 +47,7 @@ class FastPlotter(gmplot.GoogleMapPlotter):
         # Wait for all jobs to finish
         for proc in jobs:
             proc.join()
-
-        # print(sharedDict)
-
+            
         # Convert ProxyDict to regular Dict and
         nonSharedDict = dict(sharedDict)
         heatmap_points = nonSharedDict.values()
