@@ -9,14 +9,17 @@ import pycuda.driver as cuda
 
 
 class CudaStrategy:
-    """Cuda strategy approach"""
-    def __init__(self, data_frame):
-        print("\nStarting Cuda strategy...")
+    def __init__(self, data_frame, thread_count):
+        """Cuda strategy approach"""
+        if thread_count is None:
+            thread_count = 512
+
+        print("\nStarting Cuda strategy with {} threads...".format(thread_count))
         self.df = data_frame
 
         # Run scoring function
         start_time = time.time()
-        CudaStrategy.total_scores = self.score_df()
+        CudaStrategy.total_scores = self.score_df(thread_count)
         print("* Cuda strategy completed in {} seconds with {} scores..."
               .format(time.time() - start_time, len(CudaStrategy.total_scores)))
 
@@ -26,13 +29,10 @@ class CudaStrategy:
                 CudaStrategy.total_scores[1000000][0], CudaStrategy.total_scores[1000001][0]
             ))
 
-    def get_thread_size(self):
-        return 512
+    def get_core_size(self, thread_count, n):
+        return int(round(n/thread_count + 1))
 
-    def get_core_size(self, n):
-        return int(round(n/self.get_thread_size() + 1))
-
-    def score_df(self):
+    def score_df(self, thread_count):
         """Scores each collision using a scoring function that gives
         a score of 2 to each person that was killed, a score of 1
         to each person injured, and divides those two scores added
@@ -58,8 +58,8 @@ class CudaStrategy:
         # Calculate kernel params
         n = len(df[:, 0])
         output = np.zeros_like(df[:, 0])
-        thread_size = self.get_thread_size()
-        core_size = self.get_core_size(n)
+        thread_size = thread_count
+        core_size = self.get_core_size(thread_count, n)
 
         # Run kernel
         score_function = mod.get_function("score_function")

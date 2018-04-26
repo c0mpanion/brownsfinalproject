@@ -38,33 +38,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
-    print("Python version: " + sys.version)
-    print("Pandas version: " + pd.__version__)
-    print("numpy version: " + np.__version__)
-
-    # Parse command line arguments
-    args = parse_args()
-
-    # get the start time
-    start_time = time.time()
-
-    # convert csv to data frame
-    df_collisions = import_csv()
-
-    # tell us how long csv file took to run
-    print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
-
-    # Run strategies
-    ls = LinearStrategy(df_collisions)
-    ps = ParallelStrategy(df_collisions)
-    cs = CudaStrategy(df_collisions)
-    scores = CudaStrategy.total_scores
-
-    # Pull out lat and long columns
-    lats = df_collisions['LATITUDE'].values.astype(np.float32)
-    longs = df_collisions['LONGITUDE'].values.astype(np.float32)
-    latlongscores = np.column_stack((lats, longs, scores))
+def plot_points(scores):
+    latlongscores = np.column_stack((scores[1], scores[2], scores[0]))
 
     scoreslessthanone = latlongscores[np.where((latlongscores[:, 2] > 0.0) * (latlongscores[:, 2] <= 1.0))]
     scoreslessthanonelats = scoreslessthanone[:, [0]]
@@ -93,7 +68,6 @@ def main():
     gmap.draw("scores_less_than_one.html")
     print("Finished plotting scores less than one in {} seconds...".format(time.time() - start_time))
 
-
     start_time = time.time()
     gmap2 = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
     gmap2.heatmap(scoresonetotwolats, scoresonetotwolongs)
@@ -117,6 +91,32 @@ def main():
     gmap5.heatmap(scoresfourtofivelats, scoresfourtofivelongs)
     gmap5.draw("scores_four_five.html")
     print("Finished plotting scores between four and five in {} seconds...".format(time.time() - start_time))
+
+
+def main():
+    print("Python version: " + sys.version)
+    print("Pandas version: " + pd.__version__)
+    print("numpy version: " + np.__version__)
+
+    # Parse command line arguments
+    args = parse_args()
+
+    # get the start time
+    start_time = time.time()
+
+    # convert csv to data frame
+    df_collisions = import_csv()
+
+    # tell us how long csv file took to run
+    print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
+
+    # Run strategies
+    ls = LinearStrategy(df_collisions)
+    ps = ParallelStrategy(df_collisions, args.t)
+    cs = CudaStrategy(df_collisions, args.t)
+
+    # Plot on graph
+    plot_points(CudaStrategy.total_scores)
 
 
 main()
