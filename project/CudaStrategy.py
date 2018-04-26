@@ -19,15 +19,19 @@ class CudaStrategy:
 
         # Run scoring function
         start_time = time.time()
-        CudaStrategy.total_scores = self.score_df(thread_count)
+
+        self.scores = self.score_df(thread_count)
         print("* Cuda strategy completed in {} seconds with {} scores..."
-              .format(time.time() - start_time, len(CudaStrategy.total_scores)))
+              .format(time.time() - start_time, len(self.scores)))
 
         # Test for invalid data or scoring function change
-        if CudaStrategy.total_scores[1000000][0] != 0 or CudaStrategy.total_scores[1000001][0] != 0.625:
+        if self.scores[1000000][0] != 0 or self.scores[1000001][0] != 0.625:
             raise ValueError("Cuda returned an unexpected score, [...{}, {}...].".format(
-                CudaStrategy.total_scores[1000000][0], CudaStrategy.total_scores[1000001][0]
+                self.scores[1000000][0], self.scores[1000001][0]
             ))
+
+    def get_scores(self):
+        return self.scores
 
     def get_core_size(self, thread_count, n):
         return int(round(n/thread_count + 1))
@@ -70,6 +74,8 @@ class CudaStrategy:
             block=(thread_size, 1, 1),
             grid=(core_size, 1)
         )
+
+        df[:, 0] = output
 
         # Only return score with lat/long
         return df[:, [0, 1, 2]]

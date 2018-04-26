@@ -38,8 +38,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def plot_points(scores):
-    latlongscores = np.column_stack((scores[1], scores[2], scores[0]))
+def plot_points(df):
+    latlongscores = np.column_stack((df[1], df[2], df[0]))
 
     scoreslessthanone = latlongscores[np.where((latlongscores[:, 2] > 0.0) * (latlongscores[:, 2] <= 1.0))]
     scoreslessthanonelats = scoreslessthanone[:, [0]]
@@ -62,7 +62,6 @@ def plot_points(scores):
     scoresfourtofivelongs = scoresfourtofive[:, [1]]
 
     start_time = time.time()
-
     gmap = gmplot.GoogleMapPlotter(40.730610, -73.935242, 20)
     gmap.heatmap(scoreslessthanonelats, scoreslessthanonelongs)
     gmap.draw("scores_less_than_one.html")
@@ -111,12 +110,14 @@ def main():
     print("Reading CSV completed in {} seconds...".format(time.time() - start_time))
 
     # Run strategies
-    ls = LinearStrategy(df_collisions)
-    ps = ParallelStrategy(df_collisions, args.t)
-    cs = CudaStrategy(df_collisions, args.t)
+    s1 = LinearStrategy(df_collisions)
+    s2 = ParallelStrategy(df_collisions, args.t)
+    s3 = CudaStrategy(df_collisions, args.t)
+
+    print("\nPlotting points...")
 
     # Plot on graph
-    plot_points(CudaStrategy.total_scores)
+    plot_points(s3.get_scores())
 
 
 main()
