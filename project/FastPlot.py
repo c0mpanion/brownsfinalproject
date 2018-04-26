@@ -4,16 +4,9 @@ import pandas
 import multiprocessing
 import time
 from collections import deque
-from itertools import chain
-#import __main__
-
-
 
 class FastPlotter(gmplot.GoogleMapPlotter):
     
-    def dictionary_append(sendrlist1, sendrlist2, setDict):
-        setDict.append((sendrlist1, sendrlist2))
-
     def threadedHeatMap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=1, dissipating=True):
         """
         :param lats: list of latitudes
@@ -24,7 +17,7 @@ class FastPlotter(gmplot.GoogleMapPlotter):
         :return:
         """
         settings = {}
-        # Try to give anyone using threshold a heads up.
+        #Trying to give anybody using threshold a heads up.
         if threshold != 10:
             warnings.warn("The 'threshold' kwarg is deprecated, replaced in favor of maxIntensity.")
         settings['threshold'] = threshold
@@ -35,18 +28,17 @@ class FastPlotter(gmplot.GoogleMapPlotter):
         settings['dissipating'] = dissipating
         settings = self._process_heatmap_kwargs(settings)
 
-        heatmap_points = []
-
         #Shared variables for each thread to communicate
         manager = multiprocessing.Manager()
         sharedDict = manager.dict()
-
+	heatmap_points = []
+		
         # List of jobs
         jobs = []
-
-        # Iterate through all zip codes and create a process
+	
+        #Iterate through the indexes of one of the lists and create a process
         for i in range(len(lats)):
-            p = multiprocessing.Process(target=self.dictionary_append, args=(lats[i], i, lngs[i], sharedDict))
+            p = multiprocessing.Process(target=self.dictionary_append, args=(i, lats[i], lngs[i], sharedDict))
             jobs.append(p)
             p.start()
 
@@ -54,18 +46,24 @@ class FastPlotter(gmplot.GoogleMapPlotter):
         for proc in jobs:
 	    proc.join()
 
-	
-	#Needs to be converted to list to remove key error
-        heatmap_points = list(sharedDict.values())
-	print(heatmap_points)
+	#print(sharedDict)
 
-        self.heatmap_points.append((sharedDict, settings))
+	#Conver ProxyDict to regular Dict and 
+        nonSharedDict = dict(sharedDict)
+	heatmap_points = nonSharedDict.values() 		    	
+	
+	#print(heatmap_points)
+
+        self.heatmap_points.append((heatmap_points, settings))
      
     def dictionary_append(self, process_num, sendrlist1, sendrlist2, sharedDict):
 
 	tempList = deque() 
-        tempList.append((sendrlist1, sendrlist2))
-	sharedDict[process_num] = tempList
+	tempList.append((sendrlist1, sendrlist2))
+
+	#Create paired lists of latitude and longitude 
+	sharedDict[process_num] = numpy.array(tempList).flatten().tolist()
+	
 	return sharedDict
 	
 	
@@ -95,6 +93,5 @@ if __name__ == '__main__':
        path4 = [(37.433302 , 37.431257 , 37.427644 , 37.430303), (-122.14488, -122.133121, -122.137799, -122.148743)] 	
        gmap.threadedHeatMap(path4[0], path4[1], radius=40)
        gmap.draw("gmplot_map.html")
-
 
 
