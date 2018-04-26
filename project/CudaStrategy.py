@@ -21,19 +21,10 @@ class CudaStrategy:
               .format(time.time() - start_time, len(CudaStrategy.total_scores)))
 
         # Test for invalid data or scoring function change
-        if CudaStrategy.total_scores[1000000] != 0 or CudaStrategy.total_scores[1000001] != 0.625:
+        if CudaStrategy.total_scores[1000000][0] != 0 or CudaStrategy.total_scores[1000001][0] != 0.625:
             raise ValueError("Cuda returned an unexpected score, [...{}, {}...].".format(
-                CudaStrategy.total_scores[1000000], CudaStrategy.total_scores[1000001]
+                CudaStrategy.total_scores[1000000][0], CudaStrategy.total_scores[1000001][0]
             ))
-
-
-    def add_column(self):
-        """ Adds severity score column filled with zeros to the data frame """
-        self.df['SEVERITY SCORE'] = np.zeros
-
-    def print_columns(self):
-        """ Prints header columns of the data frame """
-        print(self.df.columns)
 
     def get_thread_size(self):
         return 512
@@ -55,25 +46,34 @@ class CudaStrategy:
             dest[i] = (((killed[i] * 2.0) + injured[i]) / 8.0) * 5.0;
         }
         """)
-        killed = self.df['NUMBER OF PERSONS KILLED'].values.astype(np.float32)
-        injured = self.df['NUMBER OF PERSONS INJURED'].values.astype(np.float32)
+
+        df = self.df[[
+            'SCORE',
+            'LATITUDE',
+            'LONGITUDE',
+            'NUMBER OF PERSONS KILLED',
+            'NUMBER OF PERSONS INJURED'
+        ]].values.astype(np.float32)
 
         # Calculate kernel params
-        n = len(killed)
-        output = np.zeros_like(killed)
+        n = len(df[:, 0])
+        output = np.zeros_like(df[:, 0])
         thread_size = self.get_thread_size()
-        core_size = self.get_core_size(len(output))
+        core_size = self.get_core_size(n)
+
+        print("n is " + str(n))
+        print("Core size = " + str(core_size))
+        print("thread size = " + str(thread_size))
 
         # Run kernel
         score_function = mod.get_function("score_function")
-
         score_function(
             cuda.Out(output),
-            cuda.In(killed),
-            cuda.In(injured),
+            cuda.In(df[:, 3]),
+            cuda.In(df[:, 4]),
             block=(thread_size, 1, 1),
             grid=(core_size, 1)
         )
 
-        return output
-
+        # Only return score with lat/long
+        return df[:, [0, 1, 2]]
